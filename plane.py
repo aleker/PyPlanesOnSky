@@ -15,41 +15,49 @@ import parameters
 
 
 def filter(image):
+	# GAUSSIAN
 	image = filters.gaussian (image, sigma=0.4)
-	for i in range(parameters.dil_ero_range):
-		working_image = image
-		image = morphology.dilation (working_image)
-		working_image = image
-		image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
+
+	# EROSION
+	working_image = image
+	image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
+
+	# DILATION
+	# working_image = image
+	# image = morphology.dilation (working_image)
 
 	# Contrast stretching (smaller range on black)
-	p_low, p_heigh = np.percentile (image, (0, 40))		#0, 40
+	p_low, p_heigh = np.percentile (image, (0, 30))		#0, 40
 	image = exposure.rescale_intensity (image, in_range=(p_low, p_heigh))
 
 	
-	# # # DETECT EDGES:
-	# # image = roberts (image)
-	# #image = sobel (image)
-	# image = feature.canny(image, 6)	# 5
+	# # DETECT EDGES:
+	# image = feature.canny(image, 4)	# 5
 	#
-	# # Contrast stretching (smaller range on white)
-	# # p_low, p_heigh = np.percentile (image, (90, 100))	#98, 100
-	# # image = exposure.rescale_intensity(image, in_range=(p_low, p_heigh))
+	# # DILATION
+	# working_image = image
+	# image = morphology.dilation (working_image)
 	#
 	# # Adaptive Equalization
-	# image = exposure.equalize_adapthist(image, clip_limit=0.1) # 0.07
+	# image = exposure.equalize_adapthist(image, clip_limit=0.8) # after canny 0.07
 
 	return image
 
 
 def contour_filter(image, original_image):
-	# Contours
-	contours = measure.find_contours(image, 0.95, fully_connected='high')
-	print(len(contours), '\n')
+	# CONTOURS
+	#contours = measure.find_contours(image, 0.8, fully_connected='high')
+	my_contours = []
+	for contour in measure.find_contours(image, 0.5, fully_connected='high'):	# im wyższe tym bardziej reaguje na jasne
+		if len(contour) > 400:
+			my_contours.append(contour)
+	print(len(my_contours), '\n')
+
+	# PLOT
 	figure = plt
 	fig, ax = figure.subplots()
-	ax.imshow (original_image, interpolation='nearest', cmap=plt.cm.gray)
-	for n, contour in enumerate (contours):
+	ax.imshow (image, interpolation='nearest', cmap=plt.cm.gray)
+	for n, contour in enumerate (my_contours):
 		ax.plot (contour[:, 1], contour[:, 0], linewidth=2)
 	ax.axis ('off')
 	return figure
@@ -68,13 +76,13 @@ def file_processing (file_name):
 	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
 	io.imsave(new_path, image)
 
-	# image = contour_filter(image, original_image)
-	# # SAVING OUTPUT:
-	# output_path = os.path.join(os.getcwd(), "output_2/")
-	# if not os.path.exists(output_path):
-	# 	os.mkdir(output_path)
-	# new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
-	# image.savefig(new_path)
+	image = contour_filter(image, original_image)
+	# SAVING OUTPUT:
+	output_path = os.path.join(os.getcwd(), "output_2_5/")
+	if not os.path.exists(output_path):
+		os.mkdir(output_path)
+	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
+	image.savefig(new_path)
 
 
 def read_files ():
