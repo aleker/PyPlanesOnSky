@@ -7,4 +7,4 @@ heigh = 100
 sigma = 4	# or 5
 
 # change name of files (add name at the beginning)
-name = '.jpg'
+name = ''

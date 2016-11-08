@@ -27,10 +27,10 @@ def filter(image):
 	# image = morphology.dilation (working_image)
 
 	# Contrast stretching (smaller range on black)
-	p_low, p_heigh = np.percentile (image, (0, 30))		#0, 40
+	# im mniejszy range tym bardziej gubią się w chmurach
+	p_low, p_heigh = np.percentile (image, (0, 30))  # 0, 40
 	image = exposure.rescale_intensity (image, in_range=(p_low, p_heigh))
 
-	
 	# # DETECT EDGES:
 	# image = feature.canny(image, 4)	# 5
 	#
@@ -44,12 +44,27 @@ def filter(image):
 	return image
 
 
+def is_close(beginning, ending):
+	boundary = 30
+	if beginning[0] > ending[0] and (beginning[0] > (ending[0] + boundary)):
+		return False
+	elif beginning[0] < ending[0] and (beginning[0] + boundary < ending[0]):
+		return False
+	elif beginning[1] > ending[1] and (beginning[1] > (ending[1] + boundary)):
+		return False
+	elif beginning[1] < ending[1] and (beginning[1] + boundary < ending[1]):
+		return False
+	else:
+		return True
+
+
 def contour_filter(image, original_image):
 	# CONTOURS
 	#contours = measure.find_contours(image, 0.8, fully_connected='high')
 	my_contours = []
-	for contour in measure.find_contours(image, 0.5, fully_connected='high'):	# im wyższe tym bardziej reaguje na jasne
-		if len(contour) > 400:
+	# im wyższe tym bardziej reaguje na jasne (robią się pojedyncze krawedzie ale czasem promienie wchodza na samolot
+	for contour in measure.find_contours(image, 0.5, fully_connected='high'):
+		if len(contour) > 400 and (is_close(contour[0], contour[-1])) is True:
 			my_contours.append(contour)
 	print(len(my_contours), '\n')
 
@@ -78,7 +93,7 @@ def file_processing (file_name):
 
 	image = contour_filter(image, original_image)
 	# SAVING OUTPUT:
-	output_path = os.path.join(os.getcwd(), "output_2_5/")
+	output_path = os.path.join(os.getcwd(), "output_2/")
 	if not os.path.exists(output_path):
 		os.mkdir(output_path)
 	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
