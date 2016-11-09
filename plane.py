@@ -1,10 +1,6 @@
-import skimage
-from skimage import data
 from skimage import io
 from skimage import measure
 from skimage import morphology
-from skimage.morphology import disk
-from skimage.filters import roberts, sobel, scharr, prewitt
 from skimage import feature
 from skimage import exposure
 from skimage import filters
@@ -33,24 +29,30 @@ def is_close(beginning, ending):
 def filter(image):
 	# GAUSSIAN
 	image = filters.gaussian (image, sigma=0.4)
-
 	# EROSION
 	working_image = image
 	image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
-
 	# DETECT EDGES (CANNY)
 	image = feature.canny (image, sigma=4)
-	# canny, sobel, dilation
-
 	# DILATION
 	working_image = image
 	image = morphology.dilation (working_image)
-
+	working_image = image
+	image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
 	# Adaptive Equalization
 	image = exposure.equalize_adapthist (image, clip_limit=0.1)  # after canny
-
 	return image
 
+	# # GAUSSIAN
+	# image = filters.gaussian (image, sigma=3)
+	# # DETECT EDGES (CANNY)
+	# image = feature.canny (image, sigma=2)
+	# # DILATION
+	# working_image = image
+	# image = morphology.dilation (working_image)
+	# # Adaptive Equalization
+	# image = exposure.equalize_adapthist (image, clip_limit=0.1)  # after canny
+	# return image
 
 def contour_filter(image, original_image):
 	# GAUSSIAN
@@ -112,6 +114,9 @@ def file_processing (file_name):
 		os.mkdir(output_path)
 	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
 	io.imsave(new_path, image)
+	good_pictures = ['samolot01.jpg', 'samolot07.jpg', 'samolot08.jpg', 'samolot09.jpg',
+					 'samolot12.jpg', 'samolot17.jpg']
+	create_mosaic(good_pictures)
 
 	# 2) exercise for 5
 	image = contour_filter(working_image, original_image)
@@ -121,6 +126,18 @@ def file_processing (file_name):
 		os.mkdir(output_path)
 	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
 	image.savefig(new_path)
+
+
+def create_mosaic(chosen_pictures):
+	f, ((ax_1, ax_2), (ax_3, ax_4), (ax_5, ax_6)) = plt.subplots(3,2, dpi=350)
+	list = [ax_1, ax_2, ax_3, ax_4, ax_5, ax_6]
+	for n, name in enumerate(chosen_pictures):
+		filename = os.path.join (os.getcwd (), 'output_3/', name)
+		original_image = io.imread (filename)
+		list[n].imshow (original_image, interpolation='nearest', cmap=plt.cm.gray)
+		list[n].axis('off')
+	f.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+	f.savefig('output_3/collage.jpg')
 
 
 def read_files ():
