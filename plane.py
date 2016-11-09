@@ -3,10 +3,12 @@ from skimage import data
 from skimage import io
 from skimage import measure
 from skimage import morphology
+from skimage.morphology import disk
 from skimage.filters import roberts, sobel, scharr, prewitt
 from skimage import feature
 from skimage import exposure
 from skimage import filters
+from skimage.draw import polygon
 import os
 import numpy as np
 from matplotlib import pyplot as plt
@@ -38,6 +40,7 @@ def filter(image):
 
 	# DETECT EDGES (CANNY)
 	image = feature.canny (image, sigma=4)
+	# canny, sobel, dilation
 
 	# DILATION
 	working_image = image
@@ -69,11 +72,20 @@ def contour_filter(image, original_image):
 
 	# CONTOURS
 	my_contours = []
+	centroids = []
 	# if higher than there is more reaction on brighter pixels (but rows tuck in plane)
 	for contour in measure.find_contours(image, 0.5, fully_connected='high'):
 		if len(contour) > 400 and (is_close(contour[0], contour[-1])) is True:
 			my_contours.append(contour)
-	print(len(my_contours), '\n')
+			# CENTROID:
+			rr, cc = polygon([x[0] for x in contour[:]], [y[1] for y in contour[:]])
+			zeros_image = np.zeros((len(image), len(image[0])))
+			zeros_image[rr, cc] = 1
+			m = measure.moments(zeros_image)
+			cr = m[0, 1] / m[0, 0]
+			cc = m[1, 0] / m[0, 0]
+			point = [cc, cr]
+			centroids.append(point)
 
 	# PLOT
 	figure = plt
@@ -81,6 +93,7 @@ def contour_filter(image, original_image):
 	ax.imshow (original_image, interpolation='nearest', cmap=plt.cm.gray)
 	for n, contour in enumerate (my_contours):
 		ax.plot (contour[:, 1], contour[:, 0], linewidth=2)
+		ax.plot (centroids[n][0], centroids[n][1], 'wo', linewidth=2)
 	ax.axis ('off')
 	return figure
 
