@@ -124,7 +124,7 @@ def file_processing (file_name):
 	if not os.path.exists(output_path):
 		os.mkdir(output_path)
 	new_path = os.path.join(output_path, os.path.basename(file_name) + name)
-	image.savefig(new_path)
+	image.savefig(new_path, bbox_inches='tight')
 
 
 def create_mosaic(chosen_pictures):
