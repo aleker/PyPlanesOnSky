@@ -32,23 +32,14 @@ def is_close(beginning, ending):
 
 def filter(image):
 	# GAUSSIAN
-	image = filters.gaussian (image, sigma=0.4)
-
-	# EROSION
-	working_image = image
-	image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
-
+	image = filters.gaussian (image, sigma=3)
 	# DETECT EDGES (CANNY)
-	image = feature.canny (image, sigma=4)
-	# canny, sobel, dilation
-
+	image = feature.canny (image, sigma=2)
 	# DILATION
 	working_image = image
 	image = morphology.dilation (working_image)
-
 	# Adaptive Equalization
 	image = exposure.equalize_adapthist (image, clip_limit=0.1)  # after canny
-
 	return image
 
 
@@ -113,14 +104,14 @@ def file_processing (file_name):
 	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
 	io.imsave(new_path, image)
 
-	# 2) exercise for 5
-	image = contour_filter(working_image, original_image)
-	# SAVING OUTPUT:
-	output_path = os.path.join(os.getcwd(), "output_5/")
-	if not os.path.exists(output_path):
-		os.mkdir(output_path)
-	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
-	image.savefig(new_path)
+	# # 2) exercise for 5
+	# image = contour_filter(working_image, original_image)
+	# # SAVING OUTPUT:
+	# output_path = os.path.join(os.getcwd(), "output_5/")
+	# if not os.path.exists(output_path):
+	# 	os.mkdir(output_path)
+	# new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
+	# image.savefig(new_path)
 
 
 def read_files ():
