@@ -9,7 +9,10 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import glob
-import parameters
+
+
+# change name of files for testing (add name at the end of file)
+name = ''
 
 
 def is_close(beginning, ending):
@@ -34,15 +37,11 @@ def filter(image):
 	image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
 	# DETECT EDGES (CANNY)
 	image = feature.canny (image, sigma=4)
-	# DILATION
-	working_image = image
-	image = morphology.dilation (working_image)
-	working_image = image
-	image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
 	# Adaptive Equalization
 	image = exposure.equalize_adapthist (image, clip_limit=0.1)  # after canny
 	return image
 
+	# another unused configuration
 	# # GAUSSIAN
 	# image = filters.gaussian (image, sigma=3)
 	# # DETECT EDGES (CANNY)
@@ -68,7 +67,7 @@ def contour_filter(image, original_image):
 	image = exposure.rescale_intensity (image, in_range=(p_low, p_heigh))
 
 	# EROSION x2
-	for i in range(2):
+	for i in range(1):
 		working_image = image
 		image = morphology.erosion (working_image)  # Erosion shrinks bright regions and enlarges dark regions
 
@@ -112,7 +111,7 @@ def file_processing (file_name):
 	output_path = os.path.join(os.getcwd(), "output_3/")
 	if not os.path.exists(output_path):
 		os.mkdir(output_path)
-	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
+	new_path = os.path.join(output_path, os.path.basename(file_name) + name)
 	io.imsave(new_path, image)
 	good_pictures = ['samolot01.jpg', 'samolot07.jpg', 'samolot08.jpg', 'samolot09.jpg',
 					 'samolot12.jpg', 'samolot17.jpg']
@@ -124,7 +123,7 @@ def file_processing (file_name):
 	output_path = os.path.join(os.getcwd(), "output_5/")
 	if not os.path.exists(output_path):
 		os.mkdir(output_path)
-	new_path = os.path.join(output_path, os.path.basename(file_name) + parameters.name)
+	new_path = os.path.join(output_path, os.path.basename(file_name) + name)
 	image.savefig(new_path)
 
 
