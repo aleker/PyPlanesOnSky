@@ -41,7 +41,7 @@ def filter(image):
 	image = exposure.equalize_adapthist (image, clip_limit=0.1)  # after canny
 	return image
 
-	# another unused configuration
+	# unused configuration
 	# # GAUSSIAN
 	# image = filters.gaussian (image, sigma=3)
 	# # DETECT EDGES (CANNY)
